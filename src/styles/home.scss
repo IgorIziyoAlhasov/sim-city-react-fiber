@@ -1,0 +1,17 @@
+.home-container {
+    display: flex;
+    // background-color: beige;
+
+    .game-canvas {
+        cursor: grab;
+        background-color: rgba(120, 2, 2,0.5);
+    }
+}
+
+.full-w {
+    width: 100vw;
+}
+
+.full-h {
+    height: 80vh;
+}
