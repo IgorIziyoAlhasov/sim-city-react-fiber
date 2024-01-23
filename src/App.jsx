@@ -3,9 +3,11 @@ import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 import { NavigationPanel } from './components';
 import './styles/main.scss'
 import { Home } from './pages';
+import { ToolBar } from './components';
 
 
 const App = () => {
+    ToolBar
     return (
         <main>
             <Router>
@@ -15,6 +17,7 @@ const App = () => {
                     <Route path='./contact' element={'Contact'} />
                 </Routes>
             </Router>
+            <ToolBar />
         </main>
     )
 }

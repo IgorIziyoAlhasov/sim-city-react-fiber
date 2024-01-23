@@ -1,16 +1,17 @@
 import { useThree } from '@react-three/fiber';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Vector3 } from 'three';
 
 
 // -- Constants --
 const DEG2RAD = Math.PI / 180.0;
 const RIGHT_MOUSE_BUTTON = 2;
+const MIDDLE_MOUSE_BUTTON = 4;
 
 // Camera constraints
 const CAMERA_SIZE = 5;
-const MIN_CAMERA_RADIUS = 1;
-const MAX_CAMERA_RADIUS = 15;
+const MIN_CAMERA_RADIUS = 10;
+const MAX_CAMERA_RADIUS = 25;
 const MIN_CAMERA_ELEVATION = 0;
 const MAX_CAMERA_ELEVATION = 80;
 
@@ -18,7 +19,7 @@ const MAX_CAMERA_ELEVATION = 80;
 const AZIMUTH_SENSITIVITY = 0.2;
 const ELEVATION_SENSITIVITY = 0.2;
 const ZOOM_SENSITIVITY = 0.002;
-const PAN_SENSITIVITY = -0.01;
+const PAN_SENSITIVITY = -0.05;
 
 const Y_AXIS = new Vector3(0, 1, 0);
 
@@ -29,28 +30,25 @@ const GameCamera = () => {
     const aspect = gl.domElement.clientWidth / gl.domElement.clientHeight;
 
     const cameraSetUp = {
-        cameraRadius: 10,
+        cameraRadius: (MIN_CAMERA_RADIUS + MAX_CAMERA_RADIUS) / 2,
         cameraAzimuth: 0,
-        cameraElevation: 15,
-        cameraOrigin: new Vector3(0, 0, 0)
+        cameraElevation: 45,
+        cameraOrigin: new Vector3(10, 0, 10)
     }
-
-    let prevMousePostion = { x: 0, y: 0 };
-    let pointerIsDown = false;
 
     /**
    * Event handler for `mousemove` event
    * @param {MouseEvent} event Mouse event arguments
    */
-    GameCamera.handlePointerUp = (event) => {
+    const handlePointerUp = (event) => {
         pointerIsDown = false;
     }
 
     /**
-   * Event handler for `mousemove` event
+   * Event handler for `mousedown` event
    * @param {MouseEvent} event Mouse event arguments
    */
-    GameCamera.handlePointerDown = (event) => {
+    const handlePointerDown = (event) => {
         pointerIsDown = true;
     }
 
@@ -58,14 +56,18 @@ const GameCamera = () => {
    * Event handler for `mousemove` event
    * @param {MouseEvent} event Mouse event arguments
    */
-    GameCamera.handlePointerMove = (event) => {
+    const handlePointerMove = (event) => {
+        //rotation
         if (event.buttons & RIGHT_MOUSE_BUTTON && !event.ctrlKey) {
+            console.log('rotating');
             cameraSetUp.cameraAzimuth += -(event.movementX * AZIMUTH_SENSITIVITY);
             cameraSetUp.cameraElevation += (event.movementY * ELEVATION_SENSITIVITY);
             cameraSetUp.cameraElevation = Math.min(MAX_CAMERA_ELEVATION, Math.max(MIN_CAMERA_ELEVATION, cameraSetUp.cameraElevation));
         }
 
-        if (event.buttons & RIGHT_MOUSE_BUTTON && event.ctrlKey) {
+        //panning
+        if (event.buttons & MIDDLE_MOUSE_BUTTON && !event.ctrlKey) {
+            console.log('panning');
             const forward = new Vector3(0, 0, 1).applyAxisAngle(Y_AXIS, cameraSetUp.cameraAzimuth * DEG2RAD);
             const left = new Vector3(1, 0, 0).applyAxisAngle(Y_AXIS, cameraSetUp.cameraAzimuth * DEG2RAD);
             cameraSetUp.cameraOrigin.add(forward.multiplyScalar(PAN_SENSITIVITY * event.movementY));
@@ -74,18 +76,13 @@ const GameCamera = () => {
 
 
         updateCamera();
-
-        prevMousePostion = {
-            x: event.clientX,
-            y: event.clientY
-        };
     }
 
     /**
    * Event handler for `mousemove` event
    * @param {MouseEvent} event Mouse event arguments
    */
-    GameCamera.handlePointerWheel = (event) => {
+    const handlePointerWheel = (event) => {
         cameraSetUp.cameraRadius *= 1 + (event.deltaY * ZOOM_SENSITIVITY);
         cameraSetUp.cameraRadius = Math.min(MAX_CAMERA_RADIUS, Math.max(MIN_CAMERA_RADIUS, cameraSetUp.cameraRadius));
         updateCamera();
@@ -111,7 +108,7 @@ const GameCamera = () => {
         camera.updateMatrixWorld();
     }
 
-    GameCamera.setUpCamera = () => {
+    const setUpCamera = () => {
         camera.position.set(0, 5, 5);
         camera.lookAt(0, 0, 0);
     }
@@ -120,9 +117,29 @@ const GameCamera = () => {
    * Event handler for `mousemove` event
    * @param {MouseEvent} event Mouse event arguments
    */
-    GameCamera.handleContextMenu = (event) => {
+    const handleContextMenu = (event) => {
         event.preventDefault();
     }
+
+    useEffect(() => {
+        const canvas = gl.domElement;
+        //setup event listeners here
+        canvas.addEventListener('pointerdown', handlePointerMove);
+        canvas.addEventListener('pointermove', handlePointerMove);
+        canvas.addEventListener('wheel', handlePointerWheel);
+        canvas.addEventListener('contextmenu', handleContextMenu);
+
+
+        setUpCamera();
+        return () => {
+            //dispose here
+            canvas.removeEventListener('pointerdown', handlePointerMove);
+            canvas.removeEventListener('pointermove', handlePointerMove);
+            canvas.removeEventListener('wheel', handlePointerWheel);
+            canvas.removeEventListener('contextmenu', handleContextMenu);
+        }
+
+    }, [gl]);
 
     return (
         <orthographicCamera ref={cameraRef}
