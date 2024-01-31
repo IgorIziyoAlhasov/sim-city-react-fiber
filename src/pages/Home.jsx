@@ -1,16 +1,18 @@
-import { Suspense, useEffect, useRef } from 'react'
 import './../styles/home.scss'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { GameScene, NavigationPanel } from '../components'
+import { Canvas } from '@react-three/fiber'
+import { GameScene, ToolBar } from '../components'
+import { useState } from 'react'
 
 
 
-const Home = () => {
+const Home = ({ }) => {
+  const [activeTool, setActiveTool] = useState(null);
   return (
     <section className='home-container full-w full-h'>
       <Canvas className='game-canvas full-w full-h'>
-        <GameScene />
+        <GameScene activeTool={activeTool} />
       </Canvas>
+      <ToolBar setActiveTool={setActiveTool} />
     </section>
   )
 }

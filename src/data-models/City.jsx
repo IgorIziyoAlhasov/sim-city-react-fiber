@@ -1,9 +1,19 @@
 const BUILDING_MAX_LEVEL = 4;
-const TERRAIN_TYPES = [{ 'grass': 0x00aa00 }, { 'dirt': 0x9b7653 }, { 'sand': 0xc2b280 }, { 'water': 0x0000ff }];
-const STRUCTURE_TYPES = ['building', 'municipal', 'entertainment', 'store']
+export const TERRAIN_TYPES = {
+    'grass': 0x00aa00,
+    'dirt': 0x9b7653,
+    'sand': 0xc2b280,
+    'water': 0x0000ff
+};
+export const STRUCTURE_TYPES = {
+    'rezidential': 0xccbbff,
+    'commercial': 0x666666,
+    'industrial': 0xbcfa1d,
+    'road': 0x000000
+};
 
 const City = ({ size }) => {
-    const data = []
+    let data = []
 
     const initCity = () => {
         // console.log(TERRAIN_TYPES[Math.floor(Math.random() * 3)]);
@@ -12,8 +22,8 @@ const City = ({ size }) => {
             for (let y = 0; y < size; y++) {
                 const tileData = makeTile(x, y);
 
-                tileData.terrain = TERRAIN_TYPES[0];
-                // tileData.terrain = TERRAIN_TYPES[Math.floor(Math.random() * 4)];
+                tileData.terrain = Object.keys(TERRAIN_TYPES)[0];
+
                 //fill neighbours coordinates;
                 tileData.neighboursCoordimates = {
                     top: { x: (x - 1), y },
@@ -43,11 +53,20 @@ const City = ({ size }) => {
         return data;
     }
 
+    const updateCityData = (freshData) => {
+        data = freshData;
+    }
+
     const getTilesWitStructureType = (type) => {
         return flattenedData().filter(tile => tile.structure === type);
     }
 
-    const flattenedData = () => {
+    const getTilesWitStructures = () => {
+        return flattenedData().filter(tile => tile.structure != null);
+    }
+
+    const flattenedData = (inputData) => {
+        if(inputData) return inputData.reduce((acc, col) => acc.concat(col), []);
         return data.reduce((acc, col) => acc.concat(col), []);
     }
 
@@ -55,9 +74,10 @@ const City = ({ size }) => {
         return {
             x,
             y,
-            terrain: TERRAIN_TYPES[0],
+            terrain: undefined,
             structure: undefined,
             level: 1,
+            isInteractive: true,
             neighboursCoordimates: {
                 top: null,
                 bottom: null,
@@ -89,7 +109,9 @@ const City = ({ size }) => {
         data,
         flattenedData,
         getTilesWitStructureType,
-        updateCity
+        getTilesWitStructures,
+        updateCity,
+        updateCityData
     }
 }
 

@@ -1,35 +1,26 @@
-import { Suspense, useEffect, useState } from 'react'
-import { Html } from '@react-three/drei'
-import { SkySphere, Platform } from '../models'
-import { useThree } from '@react-three/fiber'
-import { useRef } from 'react'
-import { Raycaster, Vector2 } from 'three'
-import { GameCamera, Loader, Structures } from '../components'
-import { City as CityModel } from '../data-models'
+import { Suspense, useEffect, useState } from 'react';
+import { SkySphere } from '../models';
+import { useThree } from '@react-three/fiber';
+import { useRef } from 'react';
+import { Raycaster, Vector2 } from 'three';
+import { GameCamera, Loader, Structures, Platform, ToolBar } from '../components';
+import { City as CityModel } from '../data-models';
 
+const GameScene = ({ activeTool }) => {
+    const { gl, camera } = useThree();
+    const sceneRef = useRef();
 
-const GameScene = () => {
-    const { gl, camera, scene } = useThree();
-    const sceneRef = useRef()
-
-    // const cityData = City({ size: 25 });
-    const cityDataModel = CityModel({ size: 25 });
+    // const cityDataModel = CityModel({ size: 10 });
+    const [cityDataModel, setCityDataModel] = useState(CityModel({ size: 15 }))
     const [cityData, setCityData] = useState(cityDataModel.flattenedData());
-    const [structuresState, setSetstructuresState] = useState(cityDataModel.getTilesWitStructureType('building'))
+    const [structuresState, setSetstructuresState] = useState(cityDataModel.getTilesWitStructures());
 
+    //mouse interaction pointers
     const raycaster = new Raycaster()
     const mouse = new Vector2();
     let selectedObject = undefined;
-    let onObjectSelected = (selectedObject) => {
-        console.log(selectedObject);
-
-        let {x,y} = selectedObject.userData;
-        const seletion = cityDataModel.data[x][y]
-        console.log(seletion);
-    };
 
     const handleMouseDown = (e) => {
-        console.log(gl);
         if (e.buttons & 1 && !e.ctrlKey) {
             mouse.x = (e.clientX / gl.domElement.clientWidth) * 2 - 1;
             mouse.y = -(e.clientY / gl.domElement.clientHeight) * 2 + 1;
@@ -40,10 +31,41 @@ const GameScene = () => {
             if (intersections.length > 0) {
                 if (selectedObject) selectedObject.material.emissive.setHex(0);
                 selectedObject = intersections[0].object;
-                selectedObject.material.emissive.setHex(0x555555);
 
-                if (onObjectSelected) {
-                    onObjectSelected(selectedObject);
+                if (selectedObject.userData.isInteractive) {
+                    if (activeTool.actionKey === "selection") {
+                        selectedObject.material.emissive.setHex(0x555555);
+                        console.log(selectedObject);
+                    }
+
+
+
+                    if (activeTool.actionKey !== "selection") {
+                        const platfromData = cityDataModel.data;
+
+                        if (activeTool.actionType === "terrain") {
+                            platfromData[selectedObject.userData.x][selectedObject.userData.y][activeTool.actionType] = activeTool.actionKey;
+                            cityDataModel.updateCityData(platfromData);
+                            setCityData(cityDataModel.flattenedData());
+                        } else if (activeTool.actionType === "structure") {
+                            let curTileData = platfromData[selectedObject.userData.x][selectedObject.userData.y];
+
+                            if (activeTool.actionKey === "buldoze") {
+                                console.log(curTileData);
+                                curTileData[activeTool.actionType] = undefined;
+                            } else {
+                                if (!curTileData[activeTool.actionType]) {
+                                    curTileData[activeTool.actionType] = activeTool.actionKey;
+                                } else {
+                                    console.log('The tile aready occupied!');
+                                }
+                            }
+
+                            setSetstructuresState(cityDataModel.getTilesWitStructures())
+                        }
+
+                    }
+
                 }
             }
         }
@@ -59,19 +81,19 @@ const GameScene = () => {
         setSetstructuresState(cityDataModel.getTilesWitStructureType('building'));
     }
 
-    useEffect(() => {
-        const gameIntervalTimer = setInterval(() => {
-            forceCityUpdate();
-        }, 1000);
+    // useEffect(() => {
+    //     const gameIntervalTimer = setInterval(() => {
+    //         forceCityUpdate();
+    //     }, 1000);
 
-        setTimeout(() => {
-            clearInterval(gameIntervalTimer);
-        }, 2000);
+    //     setTimeout(() => {
+    //         clearInterval(gameIntervalTimer);
+    //     }, 2000);
 
-        return () => {
-            if (gameIntervalTimer) clearInterval(gameIntervalTimer);
-        }
-    }, [])
+    //     return () => {
+    //         if (gameIntervalTimer) clearInterval(gameIntervalTimer);
+    //     }
+    // }, [])
 
 
 
@@ -84,17 +106,12 @@ const GameScene = () => {
             canvas.removeEventListener('pointerdown', handleMouseDown);
         }
 
-    }, [gl]);
+    }, [gl, activeTool, cityData]);//cityDataModel, structuresState
 
 
     return (
         <group ref={sceneRef}>
             <Suspense fallback={<Loader />}>
-                {/* <Html position={[-10,0,-10]}>
-                    <div className="game-test-controls">
-                        <button className='updater' onClick={forceCityUpdate}>Upgrade City</button>
-                    </div>
-                </Html> */}
                 {/* lights */}
                 <directionalLight position={[0, 1, 0]} intensity={0.3} />
                 <directionalLight position={[1, 1, 0]} intensity={0.3} />
@@ -111,8 +128,8 @@ const GameScene = () => {
                 <Structures data={structuresState} />
 
                 <GameCamera />
-                {/* ref={cameraRef} */}
             </Suspense>
+            {/* <ToolBar setActiveTool={setActiveTool} /> */}
         </group>
     )
 }
