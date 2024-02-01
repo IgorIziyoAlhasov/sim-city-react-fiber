@@ -3,5 +3,56 @@
     display: flex;
     background: #535353;
     position: fixed;
-    top:0
+    top: 0;
+    align-items: center;
+    justify-content: flex-start;
+    flex-flow: column;
+    row-gap: 2rem;
+
+    .buttons-panel {
+        margin-top: 1rem;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-content: space-around;
+        row-gap: 1rem;
+
+        &:first-child {
+            margin-top: 4rem;
+        }
+
+        .tool-bar-button {
+            min-width: 7rem;
+            width: 100%;
+            background-color: #a9a9a9;
+            border: 1px solid black;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            height: 2rem;
+
+            &:hover {
+                background-color: darken(#a9a9a9, 30);
+                color: white;
+            }
+
+            &.selected-tool {
+                background-color: #535353;
+                color: #f0ffff;
+
+                &::before {
+                    content: "";
+                    display: flex;
+                    background-color: #a9a9a9;
+                    width: 80%;
+                    height: 2rem;
+                    position: absolute;
+                    opacity: .3;
+                }
+            }
+        }
+    }
 }

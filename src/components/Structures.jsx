@@ -6,7 +6,11 @@ const Structures = ({ data }) => {
   return (
     <group>
       {data.map((tile, index) =>
-        <Building key={index} x={tile.x} y={tile.y} type={tile.structure} level={tile.level} />
+        <Building key={index} 
+        x={tile.x} y={tile.y} 
+        buildingModel={tile.structure} 
+        level={tile.level} 
+        isInteractive={tile.isInteractive} />
       )}
     </group>
   )

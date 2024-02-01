@@ -59,7 +59,6 @@ const GameCamera = () => {
     const handlePointerMove = (event) => {
         //rotation
         if (event.buttons & RIGHT_MOUSE_BUTTON && !event.ctrlKey) {
-            console.log('rotating');
             cameraSetUp.cameraAzimuth += -(event.movementX * AZIMUTH_SENSITIVITY);
             cameraSetUp.cameraElevation += (event.movementY * ELEVATION_SENSITIVITY);
             cameraSetUp.cameraElevation = Math.min(MAX_CAMERA_ELEVATION, Math.max(MIN_CAMERA_ELEVATION, cameraSetUp.cameraElevation));
@@ -67,7 +66,6 @@ const GameCamera = () => {
 
         //panning
         if (event.buttons & MIDDLE_MOUSE_BUTTON && !event.ctrlKey) {
-            console.log('panning');
             const forward = new Vector3(0, 0, 1).applyAxisAngle(Y_AXIS, cameraSetUp.cameraAzimuth * DEG2RAD);
             const left = new Vector3(1, 0, 0).applyAxisAngle(Y_AXIS, cameraSetUp.cameraAzimuth * DEG2RAD);
             cameraSetUp.cameraOrigin.add(forward.multiplyScalar(PAN_SENSITIVITY * event.movementY));
