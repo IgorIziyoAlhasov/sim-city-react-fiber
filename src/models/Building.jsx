@@ -1,6 +1,7 @@
 import { Box } from '@react-three/drei';
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { STRUCTURE_TYPES } from '../data-models';
+import { BuildingModel, STRUCTURE_TYPES } from '../data-models';
+
 
 
 // In the future will change this to pick an actual 3d model of a building to stick on to the map
@@ -48,12 +49,14 @@ const renderBuilding = {
     'road': (x, y) => {
         return <BuildingMeshModel height={1} type={"road"} x={x} y={y} />
     },
+    'buldoze': (x, y) => {
+        return <BuildingMeshModel height={1} type={"buldoze"} x={x} y={y} />
+    },
 }
 
-const Building = ({ x, y, type, level, isInteractive, ...props }) => {
+const Building = ({ x, y, buildingModel, level, isInteractive, ...props }) => {
 
-
-    return renderBuilding[type](x, y) || <BuildingMeshModel height={1} type={"road"} x={x} y={y} />;
+    return renderBuilding[buildingModel?.type](x, y) || <BuildingMeshModel height={1} type={"road"} x={x} y={y} />;
 
     // return (
     //     <Box ref={buildingRef} args={[1, 1, 1]} scale={[1, level, 1]} position={[x, level / 2, y]} rotation={[0, 0, 0]}>

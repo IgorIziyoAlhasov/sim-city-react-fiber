@@ -9,7 +9,9 @@ export const STRUCTURE_TYPES = {
     'rezidential': 0xccbbff,
     'commercial': 0x666666,
     'industrial': 0xbcfa1d,
-    'road': 0x000000
+    'road': 0x000000,
+    // "buldoze":0xffffff
+    
 };
 
 const City = ({ size }) => {
@@ -85,20 +87,20 @@ const City = ({ size }) => {
                 right: null
             },
             update() {
-                const chance = Math.random();
-                if (chance < 0.01) {
-                    if (this.structure === undefined) {
-                        this.structure = STRUCTURE_TYPES[0];
-                        return;
-                    }
+                // const chance = Math.random();
+                // if (chance < 0.01) {
+                //     if (this.structure === undefined) {
+                //         this.structure = STRUCTURE_TYPES[0];
+                //         return;
+                //     }
 
-                }
+                // }
 
-                if (chance < 0.005) {
-                    if (this.structure === STRUCTURE_TYPES[0] && this.level < 4) {
-                        this.level++;
-                    }
-                }
+                // if (chance < 0.005) {
+                //     if (this.structure === STRUCTURE_TYPES[0] && this.level < 4) {
+                //         this.level++;
+                //     }
+                // }
             }
         }
     }

@@ -8,7 +8,7 @@ const Structures = ({ data }) => {
       {data.map((tile, index) =>
         <Building key={index} 
         x={tile.x} y={tile.y} 
-        type={tile.structure} 
+        buildingModel={tile.structure} 
         level={tile.level} 
         isInteractive={tile.isInteractive} />
       )}

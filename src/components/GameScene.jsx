@@ -4,7 +4,7 @@ import { useThree } from '@react-three/fiber';
 import { useRef } from 'react';
 import { Raycaster, Vector2 } from 'three';
 import { GameCamera, Loader, Structures, Platform, ToolBar } from '../components';
-import { City as CityModel } from '../data-models';
+import { City as CityModel,BuildingModel } from '../data-models';
 
 const GameScene = ({ activeTool }) => {
     const { gl, camera } = useThree();
@@ -29,13 +29,12 @@ const GameScene = ({ activeTool }) => {
             let intersections = raycaster.intersectObjects(sceneRef.current.children);
 
             if (intersections.length > 0) {
-                if (selectedObject) selectedObject.material.emissive.setHex(0);
+                if (selectedObject) selectedObject.material.emissive?.setHex(0);
                 selectedObject = intersections[0].object;
 
                 if (selectedObject.userData.isInteractive) {
                     if (activeTool.actionKey === "selection") {
-                        selectedObject.material.emissive.setHex(0x555555);
-                        console.log(selectedObject);
+                        selectedObject.material?.emissive?.setHex(0x555555);
                     }
 
 
@@ -51,17 +50,18 @@ const GameScene = ({ activeTool }) => {
                             let curTileData = platfromData[selectedObject.userData.x][selectedObject.userData.y];
 
                             if (activeTool.actionKey === "buldoze") {
-                                console.log(curTileData);
-                                curTileData[activeTool.actionType] = undefined;
+                                selectedObject.material?.emissive?.setHex(0x57afbc);
+                                platfromData[selectedObject.userData.x][selectedObject.userData.y][activeTool.actionType] = null;
                             } else {
                                 if (!curTileData[activeTool.actionType]) {
-                                    curTileData[activeTool.actionType] = activeTool.actionKey;
+                                    curTileData[activeTool.actionType] = new BuildingModel(activeTool.actionKey,1);
                                 } else {
                                     console.log('The tile aready occupied!');
                                 }
                             }
 
-                            setSetstructuresState(cityDataModel.getTilesWitStructures())
+                            cityDataModel.updateCityData(platfromData);
+                            setSetstructuresState(cityDataModel.getTilesWitStructures());
                         }
 
                     }
